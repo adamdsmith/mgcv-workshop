@@ -1,0 +1,19 @@
+What to ask?
+============
+
+
+Experience with R
+ - how long have you used it?
+ - how often do you use it?
+Experience with mgcv
+ - how long have you used it?
+ - how often do you use it?
+
+Mathematical background
+ - I hate math -> I actively enjoy matrix algebra
+
+What do  you do?
+
+What do you want to do?
+
+
