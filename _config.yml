@@ -1,7 +1,7 @@
 # Jekyll configuration
 
 name: mgcv course
-description: Information for the mgcv workshops.
+description: Information for mgcv workshops.
 
 # url is currently only used only for the RSS feed in feed.xml
 url: http://converged.yt/mgcv-workshop/
