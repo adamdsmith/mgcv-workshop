@@ -1,6 +1,6 @@
 The mgcv package as a one-stop-shop for fitting non-linear ecological models
 ============================
-author: David L Miller, Eric Pedersen, and Gavin L Simpson
+author: David L Miller
 css: custom.css
 transition: none
 
@@ -9,44 +9,15 @@ Good morning!
 ==============
 type: section
 
+Who is this guy?
+================
 
-
-Logistics
-==========
-- where is the coffee?
-- where is the bathroom?
-- what if there is a fire?
-
-Who are we?
-===========
-type:section
-
-
-Eric Pedersen
-=============
-- Populuation, community, and movement ecologist
-- (sort of) Fisheries (sort of) ecologist
-- Movement and life-history modelling 
-- Connecting theoretical models to data with statistics
-- Unreasonably obsessed with smoothing and penalization as a solution to all of life's problems
-
-Gavin Simpson
-=============
-
-- (Palaeo)ecologist interested in community dynamics & environmental change
-- (Palaeo)limnologist interested in environmental change
-- Self-taught not-statistician
-- Ecological stats software (vegan plus some palaeo stuff)
-- To me most things are a model I can (will!) fit with *mgcv*
-
-David L Miller
-===============
-
-- Cetacean distribution modelling
+- (mostly) Cetacean distribution modelling
 - Spatial modelling (esp. model checking)
 - Distance sampling [distancesampling.org](http://distancesampling.org)
 - Statistical software (`Distance`, `mrds`, `dsm`)
 - Trying to shoehorn all projects into `mgcv`
+- Not a biologist/ecologist (not even really a statistician)
 
 
 Who are you?
@@ -62,7 +33,7 @@ Timing
 ======
 
 - 8am to 5pm
-- Morning session: 8am-12pm
+- Morning session: 9am-12pm
 - Aternoon session: 1pm-5pm
 
 (Approximate) schedule
@@ -70,23 +41,22 @@ Timing
 
 Time       | Thing
 -----------|--------------------
-0800-0815  | Intro
-0815-0945  | Generalized Additive Models
-0945-1000  | Coffee
-1000-1045  | Model checking
-1045-1130  | Model selection
-1130-1200  | Beyond the exponential family
-1200-1300  | Lunch
-1300-1700  | Extended examples/demos
+0900-0915  | Intro
 
 
-Foraging
-========
+Credits
+=======
 
+- Course based on one given at ESA 2016
+  - Eric Pedersen, UWisc, now DFO
+  - Gavin Simpson, U Regina
+- Using many of the materials from that course
 
-Wifi
-====
-
-
+Course website
+==============
+<br/>
+<br/>
+<br/>
+<div class="bigq"><a href="http://converged.yt/mgcv-workshop">converged.yt/mgcv-workshop</a></div>
 
 
