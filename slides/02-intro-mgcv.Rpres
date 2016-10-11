@@ -8,6 +8,7 @@ transition: none
 Overview
 =========
 
+- Introduction to some data
 - Fitting and plotting simple models
 
 ```{r setup, include=FALSE}
@@ -20,38 +21,41 @@ library(mgcv)
 opts_chunk$set(cache=TRUE, echo=FALSE)
 ```
 
-Translating maths into R
-==========================
 
-A simple example:
+Data
+====
+type:section
 
-$$
-y_i = \beta_0 + s(x) + s(w) + \epsilon_i
-$$
 
-where $\epsilon_i \sim N(0, \sigma^2)$
+Extinction experiment
+=====================
 
-Let's pretend that $y_i \sim \text{Normal}$
+- 60 populations of `Daphnia magna` grown in lab
+- 1/2 in constant conditions, 1/2 in "deteriorating"
+- Data from Drake & Griffen (Nature [doi:10.1038/nature09389](http://doi.org/10.1038/nature09389))
 
-- linear predictor: `formula = y ~ s(x) + s(w)`
-- response distribution: `family=gaussian()`
-- data: `data=some_data_frame` 
+![D. magna doi:10.1371/journal.pbio.0030253](images/Daphnia_magna.png)
 
-Putting that together
-======================
+<small>Photo credit [doi:10.1371/journal.pbio.0030253](http://doi.org/10.1371/journal.pbio.0030253)</small>
 
-```{r echo=TRUE, eval=FALSE}
-my_model <- gam(y ~ s(x) + s(w),
-                family = gaussian(),
-                data = some_data_frame,
-                method = "REML")
+
+Extinction experiment
+=====================
+
+```{r data-extinct, fig.width=12, fig.height=8}
+load("../data/drake_griffen/drake_griffen.RData")
+populations$Treatment <- "Control"
+populations$Treatment[populations$deteriorating] <- "Deteriorating"
+p <- ggplot(populations) +
+  geom_point(aes(x=day, y=Nhat, colour=Treatment, group=ID)) +
+  geom_vline(xintercept=154) +
+  labs(y="Count") +
+  theme_minimal() +
+  theme(text=element_text(size=20))
+print(p)
 ```
 
-- `method="REML"` uses REML for smoothness selection (default is `"GCV.Cp"`)
 
-What about a practical example?
-================================
-type:section
 
 
 Pantropical spotted dolphins
@@ -62,6 +66,12 @@ Pantropical spotted dolphins
 - Simple example here, ignoring all kinds of important stuff!
 
 ![a pantropical spotted dolphin doing its thing](images/spotteddolphin_swfsc.jpg)
+
+
+
+
+
+
 
 
 Inferential aims
@@ -104,7 +114,6 @@ grid_plot_obj <- function(fill, name, sp){
 - What are they interested in?
 
 ```{r spatialEDA, fig.cap="", fig.width=15}
-
 # some nearby states, transformed
 library(mapdata)
 map_dat <- map_data("worldHires",c("usa","mexico"))
@@ -127,12 +136,45 @@ p <- ggplot() +
                  data=mexdolphins[mexdolphins$count>0,],
                  colour="red", alpha=I(0.7)) +
       coord_fixed(ratio=1, ylim = range(mexdolphins$y), xlim = range(mexdolphins$x)) +
-      scale_fill_viridis() +
+      scale_fill_viridis(direction=-1) +
       labs(fill="Depth",x="x",y="y",size="Count") +
       theme_minimal()
 #p <- p + gg.opts
 print(p)
 ```
+
+What about a practical example?
+================================
+type:section
+
+Translating maths into R
+==========================
+
+A simple example:
+
+$$
+y_i = \beta_0 + s(x) + s(w) + \epsilon_i
+$$
+
+where $\epsilon_i \sim N(0, \sigma^2)$
+
+Let's pretend that $y_i \sim \text{Normal}$
+
+- linear predictor: `formula = y ~ s(x) + s(w)`
+- response distribution: `family=gaussian()`
+- data: `data=some_data_frame` 
+
+Putting that together
+======================
+
+```{r echo=TRUE, eval=FALSE}
+my_model <- gam(y ~ s(x) + s(w),
+                family = gaussian(),
+                data = some_data_frame,
+                method = "REML")
+```
+
+- `method="REML"` uses REML for smoothness selection (default is `"GCV.Cp"`)
 
 A simple dolphin model
 ===============
@@ -218,24 +260,6 @@ Summary
 summary(dolphins_depth_xy)
 ```
 
-Plotting
-================
-
-```{r plotsmooth-xy, fig.width=12, echo=TRUE}
-plot(dolphins_depth_xy, scale=0, pages=1)
-```
-- `scale=0`: each plot on different scale
-- `pages=1`: plot together
-
-
-Plotting 2d terms... erm...
-================
-
-```{r plotsmooth-xy-biv, fig.width=15, fig.height=7, echo=TRUE}
-plot(dolphins_depth_xy, select=2, cex=2, asp=1, lwd=2)
-```
-
-- `select=` picks which smooth to plot
 
 Let's try something different
 ===============================
@@ -243,17 +267,10 @@ Let's try something different
 ```{r plot-scheme2, echo=TRUE, fig.width=10}
 plot(dolphins_depth_xy, select=2, cex=2, asp=1, lwd=2, scheme=2)
 ```
+- `scale=0`: each plot on different scale
+- `select=` picks which smooth to plot
 - `scheme=2` much better for bivariate terms
-- `vis.gam()` is much more general
-
-More complex plots
-===================
-
-```{r visgam, fig.width=15, echo=TRUE}
-par(mfrow=c(1,2))
-vis.gam(dolphins_depth_xy, view=c("depth","x"), too.far=0.1, phi=30, theta=45)
-vis.gam(dolphins_depth_xy, view=c("depth","x"), plot.type="contour", too.far=0.1,asp=1/1000)
-```
+- `vis.gam()` also useful
 
 
 Fitting/plotting GAMs summary
@@ -262,239 +279,5 @@ Fitting/plotting GAMs summary
 - `gam` does all the work
 - very similar to `glm`
 - `s` indicates a smooth term
-- `plot` can give simple plots
-- `vis.gam` for more advanced stuff
+- `plot`/`vis.gam` for plots
 
-
-Prediction
-===========
-type:section
-
-What is a prediction?
-=====================
-
-- Evaluate the model, at a particular covariate combination
-- Answering (e.g.) the question "at a given depth, how many dolphins?"
-- Steps:
-  1. evaluate the $s(\ldots)$ terms
-  2. move to the response scale (exponentiate? Do nothing?)
-  3. (multiply any offset etc)
-
-Example of prediction
-======================
-
-- in maths:
-  - Model: $\text{count}_i = A_i \exp \left( \beta_0 + s(x_i, y_i) + s(\text{Depth}_i)\right)$
-  - Drop in the values of $x, y, \text{Depth}$ (and $A$)
-- in R:
-  - build a `data.frame` with $x, y, \text{Depth}, A$
-  - use `predict()`
-
-```{r echo=TRUE, eval=FALSE}
-preds <- predict(my_model, newdat=my_data, type="response")
-```
-
-(`se.fit=TRUE` gives a standard error for each prediction)
-
-Back to the dolphins...
-=======================
-type:section
-
-Where are the dolphins?
-=======================
-
-```{r echo=TRUE}
-dolphin_preds <- predict(dolphins_depth_xy, newdata=preddata,
-                         type="response")
-```
-
-```{r fig.width=20}
-p <- ggplot() +
-      grid_plot_obj(dolphin_preds, "N", pred.polys) + 
-      geom_line(aes(x, y, group=Transect.Label), data=mexdolphins) +
-      geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
-      geom_point(aes(x, y, size=count),
-                 data=mexdolphins[mexdolphins$count>0,],
-                 colour="red", alpha=I(0.7)) +
-      coord_fixed(ratio=1, ylim = range(mexdolphins$y), xlim = range(mexdolphins$x)) +
-      scale_fill_viridis() +
-      labs(fill="Predicted\ndensity", x="x", y="y", size="Count") +
-      theme_minimal()
-print(p)
-```
-
-(`ggplot2` code included in the slide source)
-
-Prediction summary
-==================
-
-- Evaluate the fitted model at a given point
-- Can evaluate many at once (`data.frame`)
-- Don't forget the `type=...` argument!
-- Obtain per-prediction standard error with `se.fit`
-
-What about uncertainty?
-========================
-type:section
-
-Without uncertainty, we're not doing statistics 
-========================
-type:section
-
-Where does uncertainty come from?
-=================================
-
-- $\boldsymbol{\beta}$: uncertainty in the spline parameters
-- $\boldsymbol{\lambda}$: uncertainty in the smoothing parameter
-
-- (Traditionally we've only addressed the former)
-- (New tools let us address the latter...)
-
-
-Parameter uncertainty
-=======================
-
-From theory:
-
-$$
-\boldsymbol{\beta} \sim N(\hat{\boldsymbol{\beta}},  \mathbf{V}_\boldsymbol{\beta})
-$$
-
-(*caveat: the normality is only* **approximate** *for non-normal response*)
-
-
-**What does this mean?** Variance for each parameter.
-
-In `mgcv`: `vcov(model)` returns $\mathbf{V}_\boldsymbol{\beta}$.
-
-
-What can we do this this?
-===========================
-
-- confidence intervals in `plot`
-- standard errors using `se.fit`
-- derived quantities? (see bibliography)
-
-blah
-====
-title:none
-type:section
-
-<img src="images/tina-modelling.png">
-
-
-
-The lpmatrix, magic, etc
-==============================
-
-For regular predictions:
-
-$$
-\hat{\boldsymbol{\eta}}_p = L_p \hat{\boldsymbol{\beta}}
-$$
-
-form $L_p$ using the prediction data, evaluating basis functions as we go.
-
-(Need to apply the link function to $\hat{\boldsymbol{\eta}}_p$)
-
-But the $L_p$ fun doesn't stop there...
-
-[[mathematics intensifies]]
-============================
-type:section
-
-Variance and lpmatrix
-======================
-
-To get variance on the scale of the linear predictor:
-
-$$
-V_{\hat{\boldsymbol{\eta}}} = L_p^\text{T} V_\hat{\boldsymbol{\beta}} L_p
-$$
-
-pre-/post-multiplication shifts the variance matrix from parameter space to linear predictor-space.
-
-(Can then pre-/post-multiply by derivatives of the link to put variance on response scale)
-
-Simulating parameters
-======================
-
-- $\boldsymbol{\beta}$ has a distribution, we can simulate
-
-```{r paramsim, results="hide"}
-library(mvtnorm)
-
-# get the Lp matrix
-Lp <- predict(dolphins_depth_xy, newdata=preddata, type="lpmatrix")
-
-# how many realisations do we want?
-frames <- 100
-
-# generate the betas from the GAM "posterior"
-betas <- rmvnorm(frames, coef(dolphins_depth_xy), vcov(dolphins_depth_xy))
-
-
-# use a function to get animation to play nice...
-anim_map <- function(){
-  # loop to make plots
-  for(frame in 1:frames){
-
-    # make the prediction
-    preddata$preds <- preddata$area * exp(Lp%*%betas[frame,])
-
-    # plot it (using viridis)
-    p <- ggplot() +
-          grid_plot_obj(preddata$preds, "N", pred.polys) + 
-          geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
-          coord_fixed(ratio=1, ylim = range(mexdolphins$y),
-                      xlim = range(mexdolphins$x)) +
-          scale_fill_viridis(limits=c(0,200)) +
-          labs(fill="Predicted\ndensity",x="x",y="y",size="Count") +
-          theme_minimal()
-    
-    print(p)
-  }
-}
-
-# make the animation!
-saveGIF(anim_map(), "uncertainty.gif", outdir = "new", interval = 0.15, ani.width = 800, ani.height = 400)
-```
-
-![Animation of uncertainty](uncertainty.gif)
-
-Uncertainty in smoothing parameter
-==================================
-
-- Recent work by Simon Wood
-- "smoothing parameter uncertainty corrected" version of $V_\hat{\boldsymbol{\beta}}$
-- In a fitted model, we have:
-  - `$Vp` what we got with `vcov`
-  - `$Vc` the corrected version
-- Still experimental
-
-Variance summary
-================
-
-- Everything comes from variance of parameters
-- Need to re-project/scale them to get the quantities we need
-- `mgcv` does most of the hard work for us
-- Fancy stuff possible with a little maths
-- Can include uncertainty in the smoothing parameter too
-
-Okay, that was a lot of information
-===================================
-type:section
-
-Summary
-=======
-
-- GAMs are GLMs plus some extra wiggles
-- Need to make sure things are *just wiggly enough*
-  - Basis + penalty is the way to do this
-- Fitting looks like `glm` with extra `s()` terms
-- Most stuff comes down to matrix algebra, that `mgcv` sheilds you from
-  - To do fancy stuff, get inside the matrices
-
-COFFEE
-======
-type:section

@@ -21,6 +21,11 @@ div.bigq {
  font-size: 200%;
  line-height: normal;
 }
+div.bigqw {
+ font-size: 200%;
+ color: #fff;
+ line-height: normal;
+}
 
 div.medq {
  font-size: 150%;
