@@ -13,6 +13,7 @@ library(reshape2)
 library(animation)
 library(mgcv)
 opts_chunk$set(cache=TRUE, echo=FALSE)
+theme_set(theme_minimal()+theme(text=element_text(size=20)))
 ```
 
 
@@ -21,6 +22,7 @@ What do we want to know?
 
 - Don't just fit models for the sake of it!
 - What are our questions?
+  - Relationship to covariates
   - Abundance
   - Distribution
   - Response to disturbance
@@ -54,7 +56,7 @@ Example of prediction
   - use `predict()`
 
 ```{r echo=TRUE, eval=FALSE}
-#preds <- predict(my_model, newdat=my_data, type="response")
+preds <- predict(my_model, newdat=my_data, type="response")
 ```
 
 (`se.fit=TRUE` gives a standard error for each prediction)
@@ -66,24 +68,75 @@ type:section
 Where are the dolphins?
 =======================
 
+```{r echo=FALSE}
+
+```
+
+```{r loaddat}
+load("../data/mexdolphins/mexdolphins.RData")
+```
+
+```{r gridplotfn}
+library(rgdal)
+library(rgeos)
+library(maptools)
+library(plyr)
+# fill must be in the same order as the polygon data
+grid_plot_obj <- function(fill, name, sp){
+
+  # what was the data supplied?
+  names(fill) <- NULL
+  row.names(fill) <- NULL
+  data <- data.frame(fill)
+  names(data) <- name
+
+  spdf <- SpatialPolygonsDataFrame(sp, data)
+  spdf@data$id <- rownames(spdf@data)
+  spdf.points <- fortify(spdf, region="id")
+  spdf.df <- join(spdf.points, spdf@data, by="id")
+
+  # seems to store the x/y even when projected as labelled as
+  # "long" and "lat"
+  spdf.df$x <- spdf.df$long
+  spdf.df$y <- spdf.df$lat
+
+  geom_polygon(aes_string(x="x",y="y",fill=name, group="group"), data=spdf.df)
+}
+# some nearby states, transformed
+library(mapdata)
+map_dat <- map_data("worldHires",c("usa","mexico"))
+lcc_proj4 <- CRS("+proj=lcc +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs ")
+map_sp <- SpatialPoints(map_dat[,c("long","lat")])
+pred.polys <- spTransform(pred_latlong, CRSobj=lcc_proj4) 
+
+# give the sp object a projection
+proj4string(map_sp) <-CRS("+proj=longlat +datum=WGS84")
+# re-project
+map_sp.t <- spTransform(map_sp, CRSobj=lcc_proj4)
+map_dat$x <- map_sp.t$long
+map_dat$y <- map_sp.t$lat
+dolphins_depth_xy <- gam(count ~ s(x, y) + s(depth) + offset(off.set),
+                 data = mexdolphins,
+                 family=nb(), method="REML")
+```
+
 ```{r echo=TRUE}
-#dolphin_preds <- predict(dolphins_depth_xy, newdata=preddata,
-#                         type="response")
+dolphin_preds <- predict(dolphins_depth_xy, newdata=preddata,
+                         type="response")
 ```
 
 ```{r fig.width=20}
-#p <- ggplot() +
-#      grid_plot_obj(dolphin_preds, "N", pred.polys) + 
-#      geom_line(aes(x, y, group=Transect.Label), data=mexdolphins) +
-#      geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
-#      geom_point(aes(x, y, size=count),
-#                 data=mexdolphins[mexdolphins$count>0,],
-#                 colour="red", alpha=I(0.7)) +
-#      coord_fixed(ratio=1, ylim = range(mexdolphins$y), xlim = range(mexdolphins$x)) +
-#      scale_fill_viridis() +
-#      labs(fill="Predicted\ndensity", x="x", y="y", size="Count") +
-#      theme_minimal()
-#print(p)
+p <- ggplot() +
+      grid_plot_obj(dolphin_preds, "N", pred.polys) + 
+      geom_line(aes(x, y, group=Transect.Label), data=mexdolphins) +
+      geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
+      geom_point(aes(x, y, size=count),
+                 data=mexdolphins[mexdolphins$count>0,],
+                 colour="red", alpha=I(0.7)) +
+      coord_fixed(ratio=1, ylim = range(mexdolphins$y), xlim = range(mexdolphins$x)) +
+      scale_fill_viridis() +
+      labs(fill="Predicted\ndensity", x="x", y="y", size="Count")
+print(p)
 ```
 
 (`ggplot2` code included in the slide source)
@@ -96,12 +149,8 @@ Prediction summary
 - Don't forget the `type=...` argument!
 - Obtain per-prediction standard error with `se.fit`
 
-What about uncertainty?
-========================
-type:section
-
 Without uncertainty, we're not doing statistics 
-========================
+===============================================
 type:section
 
 Where does uncertainty come from?
@@ -185,42 +234,41 @@ Simulating parameters
 - $\boldsymbol{\beta}$ has a distribution, we can simulate
 
 ```{r paramsim, results="hide"}
-#library(mvtnorm)
-#
-## get the Lp matrix
-#Lp <- predict(dolphins_depth_xy, newdata=preddata, type="lpmatrix")
-#
-## how many realisations do we want?
-#frames <- 100
-#
-## generate the betas from the GAM "posterior"
-#betas <- rmvnorm(frames, coef(dolphins_depth_xy), vcov(dolphins_depth_xy))
-#
-#
-## use a function to get animation to play nice...
-#anim_map <- function(){
-#  # loop to make plots
-#  for(frame in 1:frames){
-#
-#    # make the prediction
-#    preddata$preds <- preddata$area * exp(Lp%*%betas[frame,])
-#
-#    # plot it (using viridis)
-#    p <- ggplot() +
-#          grid_plot_obj(preddata$preds, "N", pred.polys) + 
-#          geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
-#          coord_fixed(ratio=1, ylim = range(mexdolphins$y),
-#                      xlim = range(mexdolphins$x)) +
-#          scale_fill_viridis(limits=c(0,200)) +
-#          labs(fill="Predicted\ndensity",x="x",y="y",size="Count") +
-#          theme_minimal()
-#    
-#    print(p)
-#  }
-#}
-#
-## make the animation!
-#saveGIF(anim_map(), "uncertainty.gif", outdir = "new", interval = 0.15, ani.width = 800, ani.height = 400)
+library(mvtnorm)
+
+# get the Lp matrix
+Lp <- predict(dolphins_depth_xy, newdata=preddata, type="lpmatrix")
+
+# how many realisations do we want?
+frames <- 100
+
+# generate the betas from the GAM "posterior"
+betas <- rmvnorm(frames, coef(dolphins_depth_xy), vcov(dolphins_depth_xy))
+
+
+# use a function to get animation to play nice...
+anim_map <- function(frames){
+  # loop to make plots
+  for(frame in 1:frames){
+
+    # make the prediction
+    preddata$preds <- preddata$area * exp(Lp%*%betas[frame,])
+
+    # plot it (using viridis)
+    p <- ggplot() +
+          grid_plot_obj(preddata$preds, "N", pred.polys) + 
+          geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
+          coord_fixed(ratio=1, ylim = range(mexdolphins$y),
+                      xlim = range(mexdolphins$x)) +
+          scale_fill_viridis(limits=c(0,200)) +
+          labs(fill="Predicted\ndensity",x="x",y="y",size="Count")
+    
+    print(p)
+  }
+}
+
+# make the animation!
+saveGIF(anim_map(frames), "uncertainty.gif", interval = 0.15, ani.width = 800, ani.height = 400)
 ```
 
 ![Animation of uncertainty](uncertainty.gif)
@@ -233,7 +281,6 @@ Uncertainty in smoothing parameter
 - In a fitted model, we have:
   - `$Vp` what we got with `vcov`
   - `$Vc` the corrected version
-- Still experimental
 
 Variance summary
 ================
@@ -244,12 +291,9 @@ Variance summary
 - Fancy stuff possible with a little maths
 - Can include uncertainty in the smoothing parameter too
 
-Okay, that was a lot of information
-===================================
-type:section
-
 Summary
 =======
 
+- `predict` is your friend
 - Most stuff comes down to matrix algebra, that `mgcv` sheilds you from
   - To do fancy stuff, get inside the matrices

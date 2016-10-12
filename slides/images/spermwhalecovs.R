@@ -36,7 +36,7 @@ for(value in c("Depth", "SST", "NPP")){
   pp[[value]] <- p
 }
 
-png(file="spermcovars.png", width=1100, height=300)
-grid.arrange(pp[["Depth"]], pp[["SST"]], pp[["NPP"]], ncol=3)
+png(file="spermcovars.png", width=800, height=500)
+grid.arrange(pp[["Depth"]], pp[["SST"]], pp[["NPP"]], ncol=2)
 dev.off()
 

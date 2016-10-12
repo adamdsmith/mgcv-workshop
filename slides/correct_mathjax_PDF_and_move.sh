@@ -15,4 +15,5 @@ for i in $( ls *.html); do
   mv tmp.html $i
   PDFFN=${i/.html/}.pdf
   ~/sources/decktape/bin/phantomjs ~/sources/decktape/decktape.js automatic -s 1024x768 $i $PDFFN
+  mv $i ~/current/webwebweb/mgcv-workshop/slides/
 done
