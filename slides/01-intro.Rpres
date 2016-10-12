@@ -20,20 +20,11 @@ library(reshape2)
 library(animation)
 library(mgcv)
 opts_chunk$set(cache=TRUE, echo=FALSE)
+theme_set(theme_minimal()+theme(text=element_text(size=20)))
 ```
 
-What is a GAM?
-===============
-type:section
 
-Generalized Additive Models
-============================
-
-- Generalized: many response distributions
-- Additive: terms **add** together
-- Models: well, it's a model...
-
-To GAMs from GLMs and LMs
+From GAMs to GLMs and LMs
 =============================
 type:section
 
@@ -57,47 +48,46 @@ Why bother with anything more complicated?!
 =============================
 type:section
 
-Is this linear?
+Is this relationship linear?
 =============================
 
-```{r islinear, fig.width=12, fig.height=6}
+```{r islinear, fig.width=12, fig.height=7}
 set.seed(2) ## simulate some data...
 dat <- gamSim(1, n=400, dist="normal", scale=1, verbose=FALSE)
 dat <- dat[,c("y", "x0", "x1", "x2", "x3")]
 p <- ggplot(dat,aes(y=y,x=x1)) +
-      geom_point() +
-      theme_minimal()
+      geom_point()
 print(p)
 ```
 
-Is this linear? Maybe?
+A linear model...
 =============================
+type:section
 
 ```{r eval=FALSE, echo=TRUE}
-lm(y ~ x1, data=dat)
+lm(y ~ x1 + poly(x1, 2), data=dat)
 ```
 
+Is this relationship linear? Maybe?
+===================================
 
-```{r maybe, fig.width=12, fig.height=6}
-p <- ggplot(dat, aes(y=y, x=x1)) + geom_point() +
-      theme_minimal()
+```{r maybe, fig.width=12, fig.height=7}
 print(p + geom_smooth(method="lm"))
 ```
-
 
 
 What can we do?
 =============================
 type:section
 
-Adding a quadratic term?
-=============================
-
 ```{r eval=FALSE, echo=TRUE}
 lm(y ~ x1 + poly(x1, 2), data=dat)
 ```
+Adding a quadratic term?
+=============================
 
-```{r quadratic, fig.width=12, fig.height=6}
+
+```{r quadratic, fig.width=12, fig.height=7}
 p <- ggplot(dat, aes(y=y, x=x1)) + geom_point() +
       theme_minimal()
 print(p + geom_smooth(method="lm", formula=y~x+poly(x, 2)))
@@ -125,6 +115,13 @@ print(p + geom_smooth(method="lm", formula=y~x+poly(x, 2)))
 type:section
 
 
+Generalized Additive Models
+============================
+
+- Generalized: many response distributions
+- Additive: terms **add** together
+- Models: well, it's a model...
+
 What does a model look like?
 =============================
 
@@ -147,7 +144,6 @@ right:55%
 spdat <- melt(dat, id.vars = c("y"))
 p <- ggplot(spdat,aes(y=y,x=value)) +
       geom_point() +
-      theme_minimal() +
       facet_wrap(~variable, nrow=2)
 print(p)
 ```
@@ -162,8 +158,7 @@ Okay, but what about these "s" things?
 right:55%
 
 ```{r wsmooths, fig.width=8, fig.height=8}
-p <- p + geom_smooth()
-print(p)
+print(p + geom_smooth())
 ```
 ***
 - Think $s$=**smooth**
@@ -207,7 +202,7 @@ Splines
 ========
 
 - Functions made of other, simpler functions
-- **Basis functions** $b_k$, estimate $\beta_k$ 
+- **Basis functions** $b_k(x)$, estimate $\beta_k$ 
 - $s(x) = \sum_{k=1}^K \beta_k b_k(x)$
 - Makes the math(s) much easier
 
@@ -220,7 +215,7 @@ Design matrices
   - $X$ is our data
   - $\boldsymbol{\beta}$ are parameters we need to estimate
 - For a GAM it's the same
-  - $X$ has columns for each basis, evaluated at each observation
+  - $X$ has columns for each basis, evaluated at each observation (row)
   - again, this is the linear predictor
   
 Measuring wigglyness
@@ -366,3 +361,5 @@ GAM summary
 - Use little functions (**basis functions**) to make big functions (**smooths**)
 - Need to make sure your smooths are **wiggly enough**
 - Use a **penalty** to trade off wiggliness/generality 
+
+

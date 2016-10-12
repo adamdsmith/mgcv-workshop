@@ -26,6 +26,12 @@ div.bigqw {
  color: #fff;
  line-height: normal;
 }
+div.bigqmono {
+ font-size: 200%;
+ color: #fff;
+ line-height: normal;
+ font-family: monospaced;
+}
 
 div.medq {
  font-size: 150%;
