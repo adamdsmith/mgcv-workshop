@@ -42,3 +42,8 @@ div.medq {
   background: #000 none repeat scroll 0% 0%;
   background-color: #000;
 }
+
+.reveal code.r {
+    background-color: #F8F8F8;
+    font-size: 2em;
+}
