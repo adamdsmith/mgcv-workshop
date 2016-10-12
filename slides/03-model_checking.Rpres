@@ -24,7 +24,6 @@ library(magrittr)
 library(ggplot2)
 library(dplyr)
 library(statmod)
-source("quantile_resid.R")
 ```
 
 ```{r pres_setup, include=FALSE}
@@ -59,7 +58,7 @@ Default basis size
 ====================
 
 ```{r gam_check, fig.keep="none", include=TRUE,echo=TRUE, fig.width=15}
-b <- gam(Nhat ~ s(day), data=pop_happy, method="REML")
+b <- gam(Nhat ~ s(day), data=pop_unhappy, method="REML")
 gam.check(b)
 ```
 
@@ -67,9 +66,23 @@ Increasing basis size
 ====================
 
 ```{r gam_check2, fig.keep="none", include=TRUE,echo=TRUE, fig.width=15}
-b_50 <- gam(Nhat ~ s(day, k=50), data=pop_happy, method="REML")
+b_50 <- gam(Nhat ~ s(day, k=50), data=pop_unhappy, method="REML")
 gam.check(b_50)
 ```
+
+Does it make a difference?!
+===========================
+
+```{r ext-flex, fig.width=12}
+par(mfrow=c(1,2))
+plot(b, main="k=10", shift=mean(pop_unhappy$Nhat), scale=0, shade=TRUE)
+abline(h=0)
+points(pop_unhappy[,c("day", "Nhat")], pch=19, cex=0.3, col="darkgrey")
+plot(b_50, main="k=50", shift=mean(pop_unhappy$Nhat), scale=0, shade=TRUE)
+abline(h=0)
+points(pop_unhappy[,c("day", "Nhat")], pch=19, cex=0.3, col="darkgrey")
+```
+
 
 Historical/philosophical note
 =============================
@@ -124,13 +137,19 @@ Checking response distribution
 
 - Left side of `gam.check` plots
 - Examples from the Drake & Griffen data
+- Looking at the "deteriorating" populations
 
+```{r, fig.width=12}
+plot(b_50, main="unhappy zooplankton", shift=mean(pop_unhappy$Nhat), scale=0, shade=TRUE)
+abline(h=0)
+points(pop_unhappy[,c("day", "Nhat")], pch=19, cex=0.3, col="darkgrey")
+```
 
 Normal response with count data
 ===================================
 
 ```{r gam_gauss, echo=TRUE, results="hide"}
-b <- gam(Nhat ~ s(day, k=50), data=pop_happy, method="REML")
+b <- gam(Nhat ~ s(day, k=50), data=pop_unhappy, method="REML")
 ```
 ```{r gam_gauss_p, results="hide", fig.width=10, fig.height=6}
 gam.check(b)
@@ -140,14 +159,14 @@ What about a count distribution?
 ================================
 
 ```{r gam_quasi, echo=TRUE, results="hide"}
-b_quasi <- gam(Nhat ~ s(day, k=50), data=pop_happy, method="REML", family=quasipoisson())
+b_quasi <- gam(Nhat ~ s(day, k=50), data=pop_unhappy, method="REML", family=quasipoisson())
 ```
 ```{r gam_quasi_p, results="hide", fig.width=10, fig.height=6}
 gam.check(b_quasi)
 ```
 
 
-What about a better count distribution?
+What about a fancier count distribution?
 ================================
 
 ```{r gam_nb, echo=TRUE, results="hide"}
@@ -228,115 +247,50 @@ Residual checking as art form
 - Highlight model deficiencies
 - Inform what to do next; which other questions are interesting
 
-Concurvity
-=============================
+
+Tobler's first law of geography
+==================================
 type:section
 
-What is concurvity?
-======================
+"Everything is related to everything else, but near things are more related than distant things"
 
-- Nonlinear measure, similar to co-linearity
+Tobler (1970)
+
+
+Concurvity
+==========
+
+- We all know correlated covariates are bad
+- What about non-linear correlations?
+- Can we describe covariates as functions of each other?
+- Important for model selection --- sensitivity analysis
+
+Example - US East coast
+=======================
+
+![us east coast with covariates](images/spermcovars.png)
+
+Checking for concurvity
+=======================
 
 - Measures, for each smooth term, how well this term could be approximated by
   - `concurvity(model, full=TRUE)`: some combination of all other smooth terms
-  - `concurvity(model, full=FALSE)`: Each of the other smooth terms in the model 
+  - `concurvity(model, full=FALSE)`: each of the other smooth terms in the model 
   (useful for identifying which terms are causing issues)
 
-A demonstration
-=============================
+Plotting concurvity
+===================
 
-
-```{r concurve1,fig.width=12, fig.height=5}
-library(mgcv)
-set.seed(1)
-n=200
-alpha = 0
-x1_cc = rnorm(n)
-mean_constant = alpha
-var_constant = alpha^2
-x2_cc = alpha*x1_cc^2 - mean_constant + rnorm(n,0,1-var_constant)
-par(mfrow=c(1,3))
-plot(x1_cc,x2_cc)
-y = 3 + cos(pi*x1_cc) + 1/(1+exp(-5*(x2_cc)))
-m1 = gam(y~s(x1_cc)+s(x2_cc),method= "REML")
-plot(m1,scale=0)
-print("concurvity(m1)")
-print(round(concurvity(m1),2))
-```
-
-
-
-A demonstration
-=============================
-
-
-```{r concurve2,fig.width=12, fig.height=5}
-set.seed(1)
-n=200
-alpha = 0.33
-mean_constant = alpha
-var_constant = alpha^2
-x1_cc = rnorm(n)
-x2_cc = alpha*x1_cc^2-mean_constant + rnorm(n,0,1-var_constant)
-par(mfrow=c(1,3))
-plot(x1_cc,x2_cc)
-y = 3 + cos(pi*x1_cc) + 1/(1+exp(-5*(x2_cc)))
-m1 = gam(y~s(x1_cc)+s(x2_cc),method= "REML")
-plot(m1,scale=0)
-print("concurvity(m1, full=TRUE)")
-print(round(concurvity(m1),2))
-```
-
-
-A demonstration
-=============================
-
-```{r concurve3,fig.width=12, fig.height=5}
-library(mgcv)
-set.seed(1)
-n=200
-max_val = sqrt(pi/(pi-2))
-alpha = 0.66
-x1_cc = rnorm(n)
-mean_constant = alpha
-var_constant = alpha^2
-x2_cc = alpha*x1_cc^2-mean_constant + rnorm(n,0,1-var_constant)
-par(mfrow=c(1,3))
-plot(x1_cc,x2_cc)
-y = 3 + cos(pi*x1_cc) + 1/(1+exp(-5*(x2_cc)))
-m1 = gam(y~s(x1_cc)+s(x2_cc),method= "REML")
-plot(m1,scale=0)
-print("concurvity(m1, full=TRUE)")
-print(round(concurvity(m1),2))
-```
-
-
-A demonstration
-=============================
-
-
-
-```{r concurve4,fig.width=12, fig.height=5}
-set.seed(1)
-alpha = 1
-mean_constant = alpha
-var_constant = alpha^2
-x2_cc = alpha*x1_cc^2-mean_constant + rnorm(n,0,1-var_constant)
-par(mfrow=c(1,3))
-plot(x1_cc,x2_cc)
-y = 3 + cos(pi*x1_cc) + 1/(1+exp(-5*(x2_cc)))
-m1 = gam(y~s(x1_cc)+s(x2_cc),method= "REML")
-plot(m1,scale=0)
-print("concurvity(m1, full=TRUE)")
-print(round(concurvity(m1),2))
-par(mfrow=c(1,1))
-```
+![concurvity vis](images/concurvity.png)
+***
+- We can visualise
+- `vis.concurvity` on course site
 
 Concurvity: things to remember
 ==============================
 - Can make your model unstable to small changes
 - `cor(data)` not sufficient: use the `concurvity(model)` function
-- Not always obvious from plots of smooths!!
+- Not always obvious from plots of covariates or smooths
 
 
 

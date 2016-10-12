@@ -60,8 +60,10 @@ print(p)
 Inferential goals
 =================
 
-- What are the "average" behaviours?
-- When do the deteriorating populations go extinct?
+- Make sense of all these dots!
+- What are the "average" trends?
+  - (What are non-average trends?)
+- When do the deteriorating populations go extinct on average?
 
 
 Pantropical spotted dolphins
@@ -72,12 +74,6 @@ Pantropical spotted dolphins
 - Simple example here, ignoring all kinds of important stuff!
 
 ![a pantropical spotted dolphin doing its thing](images/spotteddolphin_swfsc.jpg)
-
-
-
-
-
-
 
 
 Inferential aims
@@ -184,9 +180,53 @@ What about a practical example?
 ================================
 type:section
 
+Simple extinction example
+=========================
+
+```{r ext-ex, echo=TRUE}
+dmagna_happy <- gam(Nhat~s(day,  k=50), data=pop_happy, method="REML")
+dmagna_unhappy <- gam(Nhat~s(day, k=50), data=pop_unhappy, method="REML")
+```
+
+- Fit 2 models, one to control group, one to experimental group
+- `Nhat` is the count of *D. magna* (estimated from 3 censuses)
+- Model as a function of `day`
+
+What did that do?
+=================
+
+```{r ext-ex-summary, echo=TRUE}
+summary(dmagna_unhappy)
+```
+
+Cool, but what about a plot?
+============================
+
+```{r ext-plot, fig.show="hold", fig.width=12, fig.height=7}
+par(mfrow=c(1,2))
+plot(dmagna_happy, main="happy zooplankton", shift=mean(pop_happy$Nhat), scale=0, shade=TRUE)
+points(pop_happy[,c("day", "Nhat")], pch=19, cex=0.3, alpha=0.3, col="darkgrey")
+abline(h=0)
+plot(dmagna_unhappy, main="unhappy zooplankton", shift=mean(pop_unhappy$Nhat), scale=0, shade=TRUE)
+abline(h=0)
+points(pop_unhappy[,c("day", "Nhat")], pch=19, cex=0.3, col="darkgrey")
+```
+
+How did we do that?
+===================
+
+```{r ext-plot-t, echo=TRUE, eval=FALSE}
+plot(dmagna_unhappy, main="unhappy zooplankton", shift=mean(pop_unhappy$Nhat), scale=0, shade=TRUE)
+abline(h=0)
+```
+
+- `scale=0` puts each term on it's own $y$ axis
+- Terms are centred, need `shift=` to re-centre (don't in models w/ > 1 term!)
+- `shade=TRUE` makes +/-2 se into shaded area
+- `main=` sets title, as usual
 
 A simple dolphin model
-===============
+======================
 
 ```{r firstdsm, echo=TRUE}
 library(mgcv)
