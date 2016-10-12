@@ -17,8 +17,8 @@ groups <- unique(timeseries[,c("ID", "Deteriorating")])
 populations$deteriorating <- populations$ID %in% groups$ID[groups$Deteriorating==1]
 
 # smooth of population size over time
-pop_happy <- subset(populations, deteriorating)
-pop_unhappy <- subset(populations, !deteriorating)
+pop_happy <- subset(populations, !deteriorating)
+pop_unhappy <- subset(populations, deteriorating)
 
 
 save.image(file="drake_griffen.RData")
