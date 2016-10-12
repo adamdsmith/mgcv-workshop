@@ -1,5 +1,5 @@
 Model selection
-============================
+===============
 author: David L Miller
 css: custom.css
 transition: none
@@ -13,7 +13,7 @@ What do we mean by "model selection"?
   - Shrinkage
 - Selection between models
   - Term formulation
-  - What criteria to use?
+  - Selection between structurally different models
 
 ```{r setup, include=FALSE}
 library("knitr")
@@ -25,6 +25,9 @@ theme_set(theme_minimal())
 opts_chunk$set(cache=TRUE, echo=FALSE)
 ```
 
+Term selection
+==============
+type:section
 
 Term selection via p-values
 ===========================
@@ -59,45 +62,46 @@ Best behaviour when smoothness selection is done using **ML**, then **REML**.
 Neither of these are the default, so remember to use `method = "ML"` or `method = "REML"` as appropriate
 
 
-Model selection by shrinkage
+Term selection by shrinkage
 ============================
 type:section
 
 Shrinkage & additional penalties
 ================================
 
-When we smooth usually can't remove a whole function
+- Usually can't remove a whole function when smoothing
+- Penalties used act only on *range space*
+- *null space* of the basis is unpenalised.
 
+Parts of $f$ that don't have 2<sup>nd</sup> derivatives aren't penalised
 
-But, cannot remove a term entirely from the model because the penalties used act only on the *range space* of a spline basis. The *null space* of the basis is unpenalised.
-
-- **Null space** --- the basis functions that are smooth (constant, linear)
-- **Range space** --- the basis functions that are wiggly
-
-Shrinkage & additional penalties
-================================
-
-**mgcv** has two ways to penalize the null space, i.e. to do selection
-
-- *double penalty approach* via `select = TRUE`
-- *shrinkage approach* via special bases for thin plate and cubic splines
-
-Other shrinkage/selection approaches are available
+$$
+\int_\mathbb{R} \left( \frac{\partial^2 f(x)}{\partial^2 x}\right)^2 \text{d}x\\
+$$
 
 Double-penalty shrinkage
 ========================
 
-$\mathbf{S}_j$ is the smoothing penalty matrix & can be decomposed as
+$\mathbf{S}_j$ penalty matrix $j$, eigendecompose:
 
 $$
 \mathbf{S}_j = \mathbf{U}_j\mathbf{\Lambda}_j\mathbf{U}_j^{T}
 $$
 
-where $\mathbf{U}_j$ is a matrix of eigenvectors and $\mathbf{\Lambda}_j$ a diagonal matrix of eigenvalues (i.e. this is an eigen decomposition of $\mathbf{S}_j$).
+where $\mathbf{U}_j$ is a matrix of eigenvectors and $\mathbf{\Lambda}_j$ a diagonal matrix of eigenvalues (i.e., this is an eigen decomposition of $\mathbf{S}_j$).
 
 $\mathbf{\Lambda}_j$ contains some **0**s due to the spline basis null space --- no matter how large the penalty $\lambda_j$ might get no guarantee a smooth term will be suppressed completely.
 
-To solve this we need an extra penalty...
+
+Shrinkage & additional penalties
+================================
+
+`mgcv` has two ways to penalize the null space $\Rightarrow$ term selection
+
+- *double penalty approach* via `select = TRUE`
+- *shrinkage approach* via special bases `"ts"` and `"cs"`
+
+Marra & Wood (2011) review other options.
 
 Double-penalty shrinkage
 ========================
@@ -114,88 +118,55 @@ $$
 \lambda_j \mathbf{\beta}^T \mathbf{S}_j \mathbf{\beta} + \lambda_j^{*} \mathbf{\beta}^T \mathbf{S}_j^{*} \mathbf{\beta}
 $$
 
-Which implies two sets of penalties need to be estimated.
-
 In practice, add `select = TRUE` to your `gam()` call
 
 Shrinkage
 =========
 
-The double penalty approach requires twice as many smoothness parameters to be estimated. An alternative is the shrinkage approach, where $\mathbf{S}_j$ is replaced by
-
-
-$$
-\tilde{\mathbf{S}}_j = \mathbf{U}_j\tilde{\mathbf{\Lambda}}_j\mathbf{U}_j^{T}
-$$
-
-where $\tilde{\mathbf{\Lambda}}_j$ is as before except the zero eigenvalues are set to some small value $\epsilon$.
-
-This allows the null space terms to be shrunk by the standard smoothing parameters.
+- Double penalty $\Rightarrow$ twice as many smoothness parameters
+- Alternative is shrinkage, add small value to zero eigenvalues
+- Null space terms to be shrunk at the same time
 
 Use `s(..., bs = "ts")` or `s(..., bs = "cs")` in **mgcv**
 
+Selecting between models
+========================
+type:section
+
+GAMs are Bayesian models
+========================
+type:section
+
+Bayesian models
+===============
+
+- *duh*
+  - we can build Bayesian GLMs
+  - see also INLA and BayesX
+- `mgcv` fits Bayesian models
+- penalties are prior precision matrices
+- (improper) Gaussian prior on $\boldsymbol{\beta}$
+
 Empirical Bayes...?
 ===================
 
-$\mathbf{S}_j$ can be viewed as prior precision matrices and $\lambda_j$ as improper Gaussian priors on the spline coefficients.
+- Improper prior derives from $\mathbf{S}_j$ not being of full rank 
+  - zeroes in $\mathbf{\Lambda}_j$.
+- Double penalty and shrinkage smooths make prior proper
+  - **Double penalty**: no assumption as to how much to shrink the null space
+  - **Shrinkage smooths**: assume null space should be shrunk less than the wiggles
 
-The impropriety derives from $\mathbf{S}_j$ not being of full rank (zeroes in $\mathbf{\Lambda}_j$).
-
-Both the double penalty and shrinkage smooths remove the impropriety from the Gaussian prior
-
-Empirical Bayes...?
-===================
-
-- **Double penalty** --- makes no assumption as to how much to shrink the null space. This is determined from the data via estimation of $\lambda_j^{*}$
-- **Shrinkage smooths** --- assumes null space should be shrunk less than the wiggly part
+Practical Bayes
+===============
 
 Marra & Wood (2011) show that the double penalty and the shrinkage smooth approaches
 
 - performed significantly better than alternatives in terms of *predictive ability*, and
 - performed as well as alternatives in terms of variable selection
 
-Example
-=======
-left: 60%
-```{r setup-shrinkage-example, echo = FALSE, include = FALSE}
-## an example of automatic model selection via null space penalization
-set.seed(3)
-n <- 200
-dat <- gamSim(1, n=n, scale=.15, dist="poisson")                ## simulate data
-dat <- transform(dat, x4 = runif(n, 0, 1), x5 = runif(n, 0, 1)) ## spurious
-b <- gam(y ~ s(x0) + s(x1) + s(x2) + s(x3) + s(x4) + s(x5), data = dat,
-         family=poisson, select = TRUE, method = "REML")
-#summary(b)
-#plot(b, pages = 1)
-```
-```{r shrinkage-example-truth}
-p1 <- ggplot(dat, aes(x = x0, y = f0)) + geom_line()
-p2 <- ggplot(dat, aes(x = x1, y = f1)) + geom_line()
-p3 <- ggplot(dat, aes(x = x2, y = f2)) + geom_line()
-p4 <- ggplot(dat, aes(x = x3, y = f3)) + geom_line()
-plot_grid(p1, p2, p3, p4, ncol = 2, align = "vh", labels = paste0("x", 1:4))
-```
 
-***
-
-- Simulate Poisson counts
-- 4 known functions
-- 2 spurious covariates
-
-Example
-=======
-```{r shrinkage-example-summary}
-summary(b)
-```
-
-Example
-=======
-```{r shrinkage-example-plot, fig.width = 16, fig.height = 9}
-plot(b, scheme = 1, pages = 1)
-```
-
-AIC for GAMs
-============
+AIC
+===
 type:section
 
 AIC
@@ -206,7 +177,7 @@ AIC
 - Wood et al (2015) suggests a correction that accounts for uncertainty in $\lambda_j$ (`AIC`)
 
 
-References
-==========
-- [Wood (2013a) *Biometrika* **100**(1) 221--228.](http://doi.org/10.1093/biomet/ass048)
-- [Wood (2013b) *Biometrika* **100**(4) 1005--1010.](http://doi.org/10.1093/biomet/ast038)
+Examples
+========
+type:section
+

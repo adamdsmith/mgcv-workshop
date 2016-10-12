@@ -16,6 +16,18 @@ opts_chunk$set(cache=TRUE, echo=FALSE)
 ```
 
 
+What do we want to know?
+========================
+
+- Don't just fit models for the sake of it!
+- What are our questions?
+  - Abundance
+  - Distribution
+  - Response to disturbance
+  - Temporal changes
+  - Other stuff?
+
+
 
 Prediction
 ===========
