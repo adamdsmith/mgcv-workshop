@@ -9,7 +9,8 @@ Overview
 =========
 
 - Introduction to some data
-- Fitting and plotting simple models
+- Fitting simple models
+- Plotting simple models
 
 ```{r setup, include=FALSE}
 library(knitr)
@@ -19,6 +20,7 @@ library(reshape2)
 library(animation)
 library(mgcv)
 opts_chunk$set(cache=TRUE, echo=FALSE)
+theme_set(theme_minimal()+theme(text=element_text(size=20)))
 ```
 
 
@@ -30,7 +32,7 @@ type:section
 Extinction experiment
 =====================
 
-- 60 populations of `Daphnia magna` grown in lab
+- 60 populations of *Daphnia magna* in lab
 - 1/2 in constant conditions, 1/2 in "deteriorating"
 - Data from Drake & Griffen (Nature [doi:10.1038/nature09389](http://doi.org/10.1038/nature09389))
 
@@ -49,13 +51,17 @@ populations$Treatment[populations$deteriorating] <- "Deteriorating"
 p <- ggplot(populations) +
   geom_point(aes(x=day, y=Nhat, colour=Treatment, group=ID)) +
   geom_vline(xintercept=154) +
-  labs(y="Count") +
-  theme_minimal() +
-  theme(text=element_text(size=20))
+  geom_text(aes(x=x,y=y, label=label), size=9,
+            data=data.frame(x=230, y=300, label="Start deterioration")) +
+  labs(y="Count")
 print(p)
 ```
 
+Inferential goals
+=================
 
+- What are the "average" behaviours?
+- When do the deteriorating populations go extinct?
 
 
 Pantropical spotted dolphins
@@ -143,9 +149,6 @@ p <- ggplot() +
 print(p)
 ```
 
-What about a practical example?
-================================
-type:section
 
 Translating maths into R
 ==========================
@@ -175,6 +178,12 @@ my_model <- gam(y ~ s(x) + s(w),
 ```
 
 - `method="REML"` uses REML for smoothness selection (default is `"GCV.Cp"`)
+
+
+What about a practical example?
+================================
+type:section
+
 
 A simple dolphin model
 ===============
@@ -210,6 +219,17 @@ plot(dolphins_depth)
 - Rug plot
 - On the link scale
 - EDF on $y$ axis
+
+Plotting (shaded se)
+====================
+
+```{r plotsmooth-shade}
+plot(dolphins_depth, shade=TRUE)
+```
+***
+- `plot(dolphins_depth, shade=TRUE)`
+- `?plot` has a **lot** of options
+- `plotdat <- plot(model)` gives you the data that generates the plot
 
 Thin plate regression splines
 ================================
@@ -261,17 +281,22 @@ summary(dolphins_depth_xy)
 ```
 
 
-Let's try something different
-===============================
+Plot x,y term
+=============
 
-```{r plot-scheme2, echo=TRUE, fig.width=10}
-plot(dolphins_depth_xy, select=2, cex=2, asp=1, lwd=2, scheme=2)
+```{r plot-scheme2, echo=TRUE, fig.width=10, eval=FALSE}
+plot(dolphins_depth_xy, select=2, cex=3, asp=1, lwd=2, scheme=2)
 ```
 - `scale=0`: each plot on different scale
 - `select=` picks which smooth to plot
 - `scheme=2` much better for bivariate terms
 - `vis.gam()` also useful
 
+Plot x,y term
+==============
+```{r plot-scheme2p, echo=TRUE, fig.width=12}
+plot(dolphins_depth_xy, select=2, cex=3, asp=1, lwd=2, scheme=2)
+```
 
 Fitting/plotting GAMs summary
 =============================
@@ -279,5 +304,5 @@ Fitting/plotting GAMs summary
 - `gam` does all the work
 - very similar to `glm`
 - `s` indicates a smooth term
-- `plot`/`vis.gam` for plots
+- `summary`, `plot` methods 
 
