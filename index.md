@@ -2,7 +2,7 @@
 layout: page
 ---
 
-# Welcome to the `mgcv` course webpage.
+# Welcome to the `mgcv` course webpage
 
 <img src="images/mgcv-inside-transparent.png" align="right" width="150">A course! On `mgcv` and generalized additive models.
 
