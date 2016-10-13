@@ -8,6 +8,8 @@ layout: page
 
 Some useful papers, books etc on the topics covered in the course.
 
+Things can change in `mgcv` land very quickly, check [the package changelog on CRAN](https://cran.r-project.org/web/packages/mgcv/ChangeLog) whenever you update.
+
 ## Course materials
 
 - Materials for a variant of this course, given at the Ecological Society of America Annual Meeting 2016 (with Eric Pedersen, Gavin Simpson, Noam Ross). [Course website](https://eric-pedersen.github.io/mgcv-esa-workshop/).
@@ -55,6 +57,11 @@ Some useful papers, books etc on the topics covered in the course.
 - Foster, S. D., & Bravington, M. V. (2012). A Poisson–Gamma model for analysis of ecological non-negative continuous data. Environmental and Ecological Statistics, 20(4), 533–552. [http://doi.org/10.1007/s10651-012-0233-0](http://doi.org/10.1007/s10651-012-0233-0)
 - Shono, H. (2008). Application of the Tweedie distribution to zero-catch data in CPUE analysis. Fisheries Research, 93(1-2), 154–162. [http://doi.org/10.1016/j.fishres.2008.03.006](http://doi.org/10.1016/j.fishres.2008.03.006)
 
+
+## Big data sets
+
+- Wood, S.N., Goude, Y. and Shaw, S. (2015) Generalized additive models for large data sets. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64, 139–155.
+- Wood, S.N., Li, Z., Shaddick, G. and Augustin, N.H. (2016) Generalized additive models for gigadata: modelling the UK black smoke network daily data. Journal of the American Statistical Association, 1–40.
 
 ## Applications
 
