@@ -8,7 +8,7 @@ layout: page
 
 This site has slides and examples from the course as well as other useful information.
 
-The course is based on an original course given by Dave Miller, Eric Pedersen and Gavin Simpson at the Ecological Society of America Annual Meeting 2016. That course's website [can be found here](https://eric-pedersen.github.io/mgcv-esa-workshop/).
+The course is based on a course given by Dave Miller, Eric Pedersen and Gavin Simpson at the Ecological Society of America Annual Meeting 2016. That course's website [can be found here](https://eric-pedersen.github.io/mgcv-esa-workshop/).
 
 ## Course overview
 
