@@ -115,13 +115,13 @@ proj4string(map_sp) <-CRS("+proj=longlat +datum=WGS84")
 map_sp.t <- spTransform(map_sp, CRSobj=lcc_proj4)
 map_dat$x <- map_sp.t$long
 map_dat$y <- map_sp.t$lat
-dolphins_depth_xy <- gam(count ~ s(x, y) + s(depth) + offset(off.set),
-                 data = mexdolphins,
-                 family=nb(), method="REML")
+dolphins_depth <- gam(count ~ s(depth) + offset(off.set),
+                      data = mexdolphins,
+                      family=nb(), method="REML")
 ```
 
 ```{r echo=TRUE}
-dolphin_preds <- predict(dolphins_depth_xy, newdata=preddata,
+dolphin_preds <- predict(dolphins_depth, newdata=preddata,
                          type="response")
 ```
 
@@ -152,6 +152,13 @@ Prediction summary
 Without uncertainty, we're not doing statistics 
 ===============================================
 type:section
+
+
+<br/>
+<p align="center">
+<img src="images/rummy.gif" width=500px>
+</p>
+
 
 Where does uncertainty come from?
 =================================
@@ -237,13 +244,13 @@ Simulating parameters
 library(mvtnorm)
 
 # get the Lp matrix
-Lp <- predict(dolphins_depth_xy, newdata=preddata, type="lpmatrix")
+Lp <- predict(dolphins_depth, newdata=preddata, type="lpmatrix")
 
 # how many realisations do we want?
 frames <- 100
 
 # generate the betas from the GAM "posterior"
-betas <- rmvnorm(frames, coef(dolphins_depth_xy), vcov(dolphins_depth_xy))
+betas <- rmvnorm(frames, coef(dolphins_depth), vcov(dolphins_depth))
 
 
 # use a function to get animation to play nice...
@@ -260,7 +267,7 @@ anim_map <- function(frames){
           geom_polygon(aes(x=x, y=y, group = group), fill = "#1A9850", data=map_dat) +
           coord_fixed(ratio=1, ylim = range(mexdolphins$y),
                       xlim = range(mexdolphins$x)) +
-          scale_fill_viridis(limits=c(0,200)) +
+          scale_fill_viridis(limits=c(0,400)) +
           labs(fill="Predicted\ndensity",x="x",y="y",size="Count")
     
     print(p)
