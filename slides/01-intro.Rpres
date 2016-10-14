@@ -114,6 +114,20 @@ print(p + geom_smooth(method="lm", formula=y~x+poly(x, 2)))
 =============================
 type:section
 
+Generalized Additive Models
+============================
+type:section
+
+"gam"
+====================
+
+1. *Collective noun used to refer to a group of whales, or rarely also of porpoises; a pod.*
+2. *(by extension) A social gathering of whalers (whaling ships).*
+
+<br/>
+
+(via Nat Kelly, Australian Antarctic Division)
+
 
 Generalized Additive Models
 ============================
@@ -204,7 +218,8 @@ Splines
 - Functions made of other, simpler functions
 - **Basis functions** $b_k(x)$, estimate $\beta_k$ 
 - $s(x) = \sum_{k=1}^K \beta_k b_k(x)$
-- Makes the math(s) much easier
+
+<br/>
 
 <img src="images/addbasis.png">
 
@@ -274,7 +289,7 @@ What was that grey bit?
 =========================
 
 $$
-\int_\mathbb{R} \left( \frac{\partial^2 f(x)}{\partial^2 x}\right)^2 \text{d}x\\
+\int_\mathbb{R} \left( \frac{\partial^2 f(x)}{\partial x^2}\right)^2 \text{d}x\\
 $$
 
 - *Turns out* we can always write this as $\boldsymbol{\beta}^\text{T}S\boldsymbol{\beta}$, so the $\boldsymbol{\beta}$ is separate from the derivatives

@@ -31,17 +31,31 @@ type:section
 Timing
 ======
 
-- 8am to 5pm
+- 9am to 5pm
 - Morning session: 9am-12pm
+- LUNCH?!
 - Aternoon session: 1pm-5pm
 
-(Approximate) schedule
-======================
+Content
+=======
 
-Time       | Thing
------------|--------------------
-0900-0915  | Intro
+- Broad overview of what one can do in `mgcv`
+- Deeper on simple stuff
+- Focus on 1 data sets
+  - species distribution modelling
+  - "time series ish" data
 
+Overview
+========
+
+
+1. Preamble
+1. Generalized additive models
+1. Fitting GAMs in practice
+1. Model checking
+1. Model selection
+1. Inference
+1. Fancy stuff          
 
 Credits
 =======
@@ -49,7 +63,12 @@ Credits
 - Course based on one given at ESA 2016
   - Eric Pedersen, UWisc, now DFO
   - Gavin Simpson, U Regina
-- Using many of the materials from that course
+- Previous course on density models
+  - Jason Roberts, Duke
+- Using many of the materials from these courses
+- All these materials are **open**, reuse as you like!
+
+![Creative Commons BY](images/by.png)
 
 Course website
 ==============

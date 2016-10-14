@@ -20,7 +20,6 @@ library("knitr")
 library("viridis")
 library("ggplot2")
 library("mgcv")
-library("cowplot")
 theme_set(theme_minimal())
 opts_chunk$set(cache=TRUE, echo=FALSE)
 ```
@@ -57,7 +56,7 @@ Test statistic is a form of $\chi^2$ statistic, but with complicated degrees of 
 (RE)ML rant again...
 ====================
 
-Best behaviour when smoothness selection is done using **ML**, then **REML**.
+Best behaviour when smoothness selection is by **ML** (**REML** also good)
 
 Neither of these are the default, so remember to use `method = "ML"` or `method = "REML"` as appropriate
 
@@ -76,8 +75,10 @@ Shrinkage & additional penalties
 Parts of $f$ that don't have 2<sup>nd</sup> derivatives aren't penalised
 
 $$
-\int_\mathbb{R} \left( \frac{\partial^2 f(x)}{\partial^2 x}\right)^2 \text{d}x\\
+\int_\mathbb{R} \left( \frac{\partial^2 f(x)}{\partial x^2}\right)^2 \text{d}x\\
 $$
+
+<small>(Note that penalty form depends on the basis!)</small>
 
 Double-penalty shrinkage
 ========================
@@ -123,7 +124,7 @@ In practice, add `select = TRUE` to your `gam()` call
 Shrinkage
 =========
 
-- Double penalty $\Rightarrow$ twice as many smoothness parameters
+- Double penalty $\Rightarrow$ twice as many smoothing parameters
 - Alternative is shrinkage, add small value to zero eigenvalues
 - Null space terms to be shrunk at the same time
 
@@ -159,7 +160,7 @@ Empirical Bayes...?
 Practical Bayes
 ===============
 
-Marra & Wood (2011) show that the double penalty and the shrinkage smooth approaches
+Marra & Wood (2011) show that the double penalty and the shrinkage smooth approaches:
 
 - performed significantly better than alternatives in terms of *predictive ability*, and
 - performed as well as alternatives in terms of variable selection
@@ -180,4 +181,90 @@ AIC
 Examples
 ========
 type:section
+
+Back to the dolphins...
+=======================
+type:section
+
+```{r}
+load("../data/mexdolphins/mexdolphins.RData")
+```
+
+Fitting some models
+=======================
+
+```{r echo=TRUE}
+dolphins_depth_xy <- gam(count ~ s(x, y) + s(depth) + offset(off.set),
+                 data = mexdolphins,
+                 family=nb(), method="REML")
+dolphins_depth <- gam(count ~ s(depth) + offset(off.set),
+                 data = mexdolphins,
+                 family=nb(), method="REML")
+dolphins_xy <- gam(count ~ s(x, y) + offset(off.set),
+                 data = mexdolphins,
+                 family=nb(), method="REML")
+```
+
+Comparing terms by p-value
+==========================
+
+```{r echo=TRUE}
+summary(dolphins_depth_xy)
+```
+
+Comparing models by AIC
+=======================
+
+```{r echo=TRUE}
+AIC(dolphins_xy, dolphins_depth, dolphins_depth_xy)
+```
+
+
+Shrinkage (basis)
+=========
+
+```{r echo=TRUE}
+dolphins_depth_xy_s <- gam(count ~ s(x, y, bs="ts") + s(depth, bs="ts") + offset(off.set),
+                 data = mexdolphins,
+                 family=nb(), method="REML")
+```
+
+
+Shrinkage (basis)
+=========
+```{r echo=TRUE}
+summary(dolphins_depth_xy_s)
+```
+
+
+Shrinkage (extra penalty)
+=========
+
+```{r echo=TRUE}
+dolphins_depth_xy_e <- gam(count ~ s(x, y) + s(depth) + offset(off.set),
+                 data = mexdolphins, select=TRUE,
+                 family=nb(), method="REML")
+```
+
+
+Shrinkage (basis)
+=========
+```{r echo=TRUE}
+summary(dolphins_depth_xy_e)
+```
+
+These last two models were empirical Bayes models
+=================================================
+type:section
+
+That's all from the dolphins for now...
+====================================
+type:section
+
+<br/>
+![dolphins from HHG2G](images/thanks_for_all_the_fish.gif)
+
+
+
+
 
