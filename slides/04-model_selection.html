@@ -1028,6 +1028,45 @@ hljs.initHighlightingOnLoad();
 </div>
 
 </section>
+<section data-transition="none" data-transition-speed="default">
+<h3>Model selection by REML&#x2F;ML</h3>
+<div class="slideContent" >
+<ul>
+<li>If you <strong>don&#39;t</strong> use shrinkage/double penalty you can&#39;t use REML scores to select models</li>
+<li>Need model to be fully penalized for REML score selection</li>
+<li>You can use ML though</li>
+<li><em>but</em> there are other options&hellip;</li>
+</ul>
+
+</div>
+
+</section>
+<section data-state="section" data-transition="none" data-transition-speed="default">
+<h2>AIC</h2>
+<div class="slideContent" >
+
+</div>
+
+</section>
+<section data-transition="none" data-transition-speed="default">
+<h3>AIC</h3>
+<div class="slideContent" >
+<ul>
+<li>Use full likelihood of \( \boldsymbol{\beta} \) <em>conditional</em> upon \( \lambda_j \) is used, with the EDF replacing \( k \), the number of model parameters</li>
+<li>This <em>conditional</em> AIC tends to select complex models, especially those with random effects, as the EDF ignores that \( \lambda_j \) are estimated</li>
+<li>Wood et al (2015) suggests a correction that accounts for uncertainty in \( \lambda_j \) (<code>AIC</code>)</li>
+</ul>
+
+</div>
+
+</section>
+<section data-state="section" data-transition="none" data-transition-speed="default">
+<h2>Okay, fine, but...</h2>
+<div class="slideContent" >
+
+</div>
+
+</section>
 <section data-state="section" data-transition="none" data-transition-speed="default">
 <h2>GAMs are Bayesian models</h2>
 <div class="slideContent" >
@@ -1081,25 +1120,6 @@ hljs.initHighlightingOnLoad();
 <ul>
 <li>performed significantly better than alternatives in terms of <em>predictive ability</em>, and</li>
 <li>performed as well as alternatives in terms of variable selection</li>
-</ul>
-
-</div>
-
-</section>
-<section data-state="section" data-transition="none" data-transition-speed="default">
-<h2>AIC</h2>
-<div class="slideContent" >
-
-</div>
-
-</section>
-<section data-transition="none" data-transition-speed="default">
-<h3>AIC</h3>
-<div class="slideContent" >
-<ul>
-<li>Use full likelihood of \( \boldsymbol{\beta} \) <em>conditional</em> upon \( \lambda_j \) is used, with the EDF replacing \( k \), the number of model parameters</li>
-<li>This <em>conditional</em> AIC tends to select complex models, especially those with random effects, as the EDF ignores that \( \lambda_j \) are estimated</li>
-<li>Wood et al (2015) suggests a correction that accounts for uncertainty in \( \lambda_j \) (<code>AIC</code>)</li>
 </ul>
 
 </div>
