@@ -36,18 +36,21 @@ Timing
 - LUNCH?!
 - Aternoon session: 1pm-5pm
 
+Today: me talking a lot
+
+Tomorrow: less of that?
+
 Content
 =======
 
 - Broad overview of what one can do in `mgcv`
 - Deeper on simple stuff
-- Focus on 1 data sets
-  - species distribution modelling
-  - "time series ish" data
+- Focus on 2 data sets
+  - species distribution modelling (dolphins)
+  - "time series ish" data (zooplankton)
 
 Overview
 ========
-
 
 1. Preamble
 1. Generalized additive models
@@ -55,14 +58,21 @@ Overview
 1. Model checking
 1. Model selection
 1. Inference
-1. Fancy stuff          
+1. "Fancy" stuff
+
+Please interrupt!
+=================
+
+- I have a weird accent 
+- I sometimes mumble
+- I will probably say something that is unclear
 
 Credits
 =======
 
 - Course based on one given at ESA 2016
   - Eric Pedersen, UWisc, now DFO
-  - Gavin Simpson, U Regina
+  - Gavin Simpson, URegina, SK
 - Previous course on density models
   - Jason Roberts, Duke
 - Using many of the materials from these courses
