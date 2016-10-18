@@ -134,6 +134,29 @@ Selecting between models
 ========================
 type:section
 
+Model selection by REML/ML
+==========================
+
+- If you **don't** use shrinkage/double penalty you can't use REML scores to select models
+- Need model to be fully penalized for REML score selection
+- You can use ML though
+- *but* there are other options...
+
+AIC
+===
+type:section
+
+AIC
+============
+
+- Use full likelihood of $\boldsymbol{\beta}$ *conditional* upon $\lambda_j$ is used, with the EDF replacing $k$, the number of model parameters
+- This *conditional* AIC tends to select complex models, especially those with random effects, as the EDF ignores that $\lambda_j$ are estimated
+- Wood et al (2015) suggests a correction that accounts for uncertainty in $\lambda_j$ (`AIC`)
+
+Okay, fine, but...
+==================
+type:section
+
 GAMs are Bayesian models
 ========================
 type:section
@@ -165,17 +188,6 @@ Marra & Wood (2011) show that the double penalty and the shrinkage smooth approa
 - performed significantly better than alternatives in terms of *predictive ability*, and
 - performed as well as alternatives in terms of variable selection
 
-
-AIC
-===
-type:section
-
-AIC
-============
-
-- Use full likelihood of $\boldsymbol{\beta}$ *conditional* upon $\lambda_j$ is used, with the EDF replacing $k$, the number of model parameters
-- This *conditional* AIC tends to select complex models, especially those with random effects, as the EDF ignores that $\lambda_j$ are estimated
-- Wood et al (2015) suggests a correction that accounts for uncertainty in $\lambda_j$ (`AIC`)
 
 
 Examples
