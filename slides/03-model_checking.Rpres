@@ -83,6 +83,15 @@ abline(h=0)
 points(pop_unhappy[,c("day", "Nhat")], pch=19, cex=0.3, col="darkgrey")
 ```
 
+General strategy
+================
+
+- leave `k` at default, see what happens
+- double `k` depending on results from `gam.check`
+- repeat
+
+<br/>
+`?choose.k` has some good advice
 
 Historical/philosophical note
 =============================
