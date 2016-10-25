@@ -263,7 +263,7 @@ Cyclic smooths
 
 ***
 
-- cyclic smooths (`bs="cc"`, `bs="cs"`)
+- cyclic smooths (`bs="cc"`)
 - what if smooths need to "match up"?
 - ensure up to 2nd derivs match
 - need to be careful with end points

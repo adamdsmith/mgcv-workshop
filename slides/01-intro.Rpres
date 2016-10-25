@@ -65,7 +65,7 @@ A linear model...
 type:section
 
 ```{r eval=FALSE, echo=TRUE}
-lm(y ~ x1 + poly(x1, 2), data=dat)
+lm(y ~ x1, data=dat)
 ```
 
 Is this relationship linear? Maybe?
